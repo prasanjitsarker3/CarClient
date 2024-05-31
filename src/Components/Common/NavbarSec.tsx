@@ -12,9 +12,23 @@ import {
 } from "@nextui-org/react";
 import { ThemeSwitcher } from "../Provider/ThemeSwicher";
 import Link from "next/link";
+import { useAuth } from "../Provider/AuthProvider";
+import { userLogOut } from "../UtlitsFunc/handleLogOut";
 
-const NavbarSec = () => {
+const NavbarSec = ({ user }: { user: any }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const { setUser } = useAuth();
+
+  const routesMap: Record<string, string> = {
+    user: "/dashboard",
+    admin: "/dashboard/admin",
+    driver: "/dashboard/driver",
+  };
+
+  const handleLogOut = async () => {
+    await userLogOut();
+    setUser(null);
+  };
 
   const menuItems = [
     "Profile",
@@ -48,16 +62,25 @@ const NavbarSec = () => {
           <NavbarItem>
             <Link href="/about">About</Link>
           </NavbarItem>
+          <NavbarItem>
+            {user && <Link href={routesMap[user?.role]}>Dashboard</Link>}
+          </NavbarItem>
         </NavbarContent>
 
         <NavbarContent justify="end" className="">
           <NavbarItem className="hidden lg:flex">
             <ThemeSwitcher />
-            <Link href="/login">
-              <Button color="primary" variant="flat">
-                Sign In
+            {!user ? (
+              <Link href="/login">
+                <Button color="primary" variant="flat">
+                  Sign In
+                </Button>
+              </Link>
+            ) : (
+              <Button onClick={handleLogOut} color="primary" variant="flat">
+                Sign Out
               </Button>
-            </Link>
+            )}
           </NavbarItem>
 
           <NavbarMenuToggle
